@@ -19,7 +19,7 @@ const postsSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true } // 이거 쓰면 DB에 createdAt, updatedAt 자동 생성해줌.
 );
 
 module.exports = mongoose.model('board', postsSchema);

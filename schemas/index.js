@@ -3,7 +3,7 @@ mongoose.set('strictQuery', false);
 
 const connect = () => {
   mongoose
-    .connect('mongodb://127.0.0.1:27017/myBlog', {
+    .connect('mongodb+srv://crud:crud@cluster0.k8bjxuj.mongodb.net/user', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
