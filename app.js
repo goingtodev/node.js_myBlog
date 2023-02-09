@@ -7,8 +7,10 @@ const commentsRouter = require('./routes/comments.js');
 const connect = require('./schemas/index.js');
 connect();
 
+// 나머지 불러오기
 app.use(express.json());
 
+// 연결
 app.use('/posts', postsRouter);
 app.use('/comments', commentsRouter);
 

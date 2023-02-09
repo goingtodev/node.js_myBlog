@@ -1,37 +1,35 @@
 const express = require('express');
-
 const router = express.Router();
+const board = require('../schemas/posts.js');
 
 // 게시글 작성 API
-const board = require('../schemas/posts.js');
 router.post('/', async (req, res) => {
-  if (
-    req.body == null ||
-    req.params == null ||
-    Object.keys(req.body).length === 0
-  ) {
-    return res
-      .status(400)
-      .json({ message: '데이터 형식이 올바르지 않습니다.' });
-  }
-
   const { user, password, title, content } = req.body;
 
-  const createPost = await board.create({
+  await board.create({
     user,
     password,
     title,
     content,
   });
-  res.status(200).json({
-    postReturn: createPost,
-    message: '게시글을 생성하였습니다.',
-  });
+  res.status(200).json({ message: '게시글을 생성하였습니다.' });
 });
 
 // 게시글 조회 API
 router.get('/', async (req, res) => {
-  const select = await board.find({});
+  const select = await board.find({}).sort({ createdAt: -1 });
+
+  const arr = [];
+
+  for (let i = 0; i < select.length; i++) {
+    const temp = {
+      postId: select[i]._id,
+      user: select[i].user,
+      content: select[i].content,
+      createdAt: select[i].createdAt,
+    };
+    arr.push(temp);
+  }
   res.status(200).json(select);
 });
 
@@ -40,25 +38,20 @@ router.get('/:_postId', async (req, res) => {
   const { _postId } = req.params;
   const selectDetail = await board.findById(_postId);
 
-  if (req.params._postId.length < 24) {
-    return res
-      .status(400)
-      .json({ message: '데이터 형식이 올바르지 않습니다.' });
-  }
-  const detailData = {
+  const temp = {
     postId: selectDetail._id,
     user: selectDetail.user,
     title: selectDetail.title,
     content: selectDetail.content,
     createdAt: selectDetail.createdAt,
   };
-  res.status(400).json({ data: [detailData] });
+  res.status(400).json({ data: [temp] });
 });
 
 // 게시글 수정
 router.put('/:_postId', async (req, res) => {
   const { password, title, content } = req.body;
-  await board.findOneAndUpdate(
+  await board.findByIdAndUpdate(
     req.params._postId,
     {
       password: password,
@@ -76,20 +69,9 @@ router.put('/:_postId', async (req, res) => {
 router.delete('/:_postId', async (req, res) => {
   const { _postId } = req.params;
   const { password } = req.body;
-  const existPost = await board.findById(_postId);
-  if (
-    req.body == null ||
-    req.params == null ||
-    Object.keys(req.body).length === 0 ||
-    Object.keys(req.params).length === 0
-  ) {
-    res.status(400).send({ message: '데이터 형식이 올바르지 않습니다.' });
-  } else if (existPost !== password) {
-    res.status(404).send({ message: '게시글 조회에 실패하였습니다.' });
-  }
-
-  if (existPost) {
-    await board.deleteOne({ _id: _postId });
+  const postdelete = await board.findById(_postId);
+  if (postdelete.password === password) {
+    await postModel.deleteOne({ _id: _postId });
     res.json({ message: '게시글을 삭제하였습니다.' });
   }
 });
