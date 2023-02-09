@@ -40,16 +40,16 @@ commentsRouter.get('/:_postId', async (req, res) => {
 
 // 댓글 수정
 commentsRouter.put('/:_commentId', async (req, res) => {
-  const { _commentId } = req.params;
   const { password, content } = req.body;
-
-  const existComments = await commentsBoard.findOneAndUpdate(
-    { _commentId: req.params._id },
+  await commentsBoard.findOneAndUpdate(
+    req.params._commentId,
     {
-      password: req.body.password,
-      content: req.body.content,
+      password: password,
+      content: content,
     },
-    { new: true }
+    {
+      new: true,
+    } // 실시간으로 변하는지 확인하는 용도
   );
   res.json({ message: '댓글을 수정하였습니다.' });
 });

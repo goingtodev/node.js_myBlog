@@ -56,31 +56,20 @@ router.get('/:_postId', async (req, res) => {
 });
 
 // 게시글 수정
-router.put('/:_postId', async (req, res, next) => {
-  const { _postId } = req.params;
+router.put('/:_postId', async (req, res) => {
   const { password, title, content } = req.body;
-
-  const existPost = await board.findOneAndUpdate(
-    { _postId: req.params._id },
+  await board.findOneAndUpdate(
+    req.params._postId,
     {
-      password: req.body.password,
-      title: req.body.title,
-      content: req.body.content,
+      password: password,
+      title: title,
+      content: content,
     },
-    { new: true }
+    {
+      new: true,
+    }
   );
-  try {
-    if (!existPost.length) {
-      throw new Error('유효하지 않은 ID입니다');
-    }
-    if (password !== existPost.password) {
-      throw new Error('비밀번호가 틀립니다.');
-    }
-    res.status(200).json({ message: '게시글을 수정하였습니다.' });
-  } catch (error) {
-    next(error);
-  }
-  // res.json(existPost);
+  res.json({ message: '게시글을 수정하였습니다.' });
 });
 
 // 게시글 삭제
