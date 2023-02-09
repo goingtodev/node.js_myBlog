@@ -1,10 +1,9 @@
 const express = require('express');
-
-const commentsRouter = express.Router();
+const router = express.Router();
+const commentsBoard = require('../schemas/comments.js');
 
 // 댓글 생성
-const commentsBoard = require('../schemas/comments.js');
-commentsRouter.post('/:_postId', async (req, res) => {
+router.post('/:_postId', async (req, res) => {
   const { _postId } = req.params;
   const { user, password, content } = req.body;
 
@@ -22,7 +21,7 @@ commentsRouter.post('/:_postId', async (req, res) => {
 
 // 댓글 목록 조회
 
-commentsRouter.get('/:_postId', async (req, res) => {
+router.get('/:_postId', async (req, res) => {
   const { _postId } = req.params;
   const list = await commentsBoard.find({ postId: _postId });
   const arr = [];
@@ -39,9 +38,9 @@ commentsRouter.get('/:_postId', async (req, res) => {
 });
 
 // 댓글 수정
-commentsRouter.put('/:_commentId', async (req, res) => {
+router.put('/:_commentId', async (req, res) => {
   const { password, content } = req.body;
-  await commentsBoard.findOneAndUpdate(
+  await commentsBoard.findByIdAndUpdate(
     req.params._commentId,
     {
       password: password,
@@ -55,14 +54,14 @@ commentsRouter.put('/:_commentId', async (req, res) => {
 });
 
 // 댓글 삭제
-commentsRouter.delete('/:_commentId', async (req, res) => {
+router.delete('/:_commentId', async (req, res) => {
   const { _commentId } = req.params;
   const { password } = req.body;
-  const existComments = await commentsBoard.findById(_commentId);
+  const existComments = await commentsBoard.findOne({ _id: _commentId });
   if (existComments.password === password) {
     await commentsBoard.deleteOne({ _id: _commentId });
     res.json({ message: '댓글을 삭제하였습니다.' });
   }
 });
 
-module.exports = commentsRouter;
+module.exports = router;

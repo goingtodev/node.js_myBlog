@@ -17,6 +17,7 @@ router.post('/', async (req, res) => {
 
 // 게시글 조회 API
 router.get('/', async (req, res) => {
+  // 작성자 날짜 기준 -> sort -1은 내림차순 정렬
   const select = await board.find({}).sort({ createdAt: -1 });
 
   const arr = [];
@@ -30,7 +31,7 @@ router.get('/', async (req, res) => {
     };
     arr.push(temp);
   }
-  res.status(200).json(select);
+  res.status(200).json({ data: arr });
 });
 
 // 게시글 상세 조회 API
@@ -45,7 +46,7 @@ router.get('/:_postId', async (req, res) => {
     content: selectDetail.content,
     createdAt: selectDetail.createdAt,
   };
-  res.status(400).json({ data: [temp] });
+  res.status(400).json({ data: temp });
 });
 
 // 게시글 수정
@@ -69,9 +70,9 @@ router.put('/:_postId', async (req, res) => {
 router.delete('/:_postId', async (req, res) => {
   const { _postId } = req.params;
   const { password } = req.body;
-  const postdelete = await board.findById(_postId);
+  const postdelete = await board.findOne({ _id: _postId });
   if (postdelete.password === password) {
-    await postModel.deleteOne({ _id: _postId });
+    await board.deleteOne({ _id: _postId });
     res.json({ message: '게시글을 삭제하였습니다.' });
   }
 });
